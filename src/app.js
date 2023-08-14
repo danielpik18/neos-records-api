@@ -52,6 +52,9 @@ try {
     console.log('DB connection error: ', error)
 }
 
+
+//db.sync({force: true});
+
 app.listen(8000, () => {
     console.log('Server running on port 8000')
 })

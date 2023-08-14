@@ -2,9 +2,6 @@ import NewsPostModel from "../models/NewsPostModel.js";
 
 // Get All Items
 export const getAllNews = async (req, res) => {
-
-    console.log('GETTING NEWS...', req.cookies)
-
     const getPagination = (size, page) => {
         const limit = size ? +size : 3;
         const offset = page ? page * limit : 0;
@@ -33,7 +30,6 @@ export const getAllNews = async (req, res) => {
         });
 
         
-
         return res.json(getPaginatedData(news, page, limit));
     } catch (error) {
         return res.json({

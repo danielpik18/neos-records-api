@@ -4,7 +4,7 @@ import { isAdmin, verifyToken } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.get('/', verifyToken, getAllNews)
+router.get('/', getAllNews)
 router.get('/:id', getNewsItem)
 router.post('/', [verifyToken, isAdmin], createNewsItem)
 router.put('/:id', [verifyToken, isAdmin], updateNewsItem)

@@ -7,9 +7,23 @@ import RefreshTokenModel from "../models/RefreshTokenModel.js";
 
 export const register = async (req, res) => {
     try {
+        console.log('ENTERED DATA', req.body);
+
+        // 0. Check input wasn't empty
+        if(
+            !req.body.name ||
+            !req.body.lastname ||
+            !req.body.email ||
+            !req.body.password
+        ) return res.status(400).json({
+            message: 'A required field was left empty.'
+        })
+
+        // 1. Encrpyt password
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-        const createdUser = await UserModel.create({
+        // 2. Create user
+        const user = await UserModel.create({
             name: req.body.name,
             lastname: req.body.lastname,
             email: req.body.email,
@@ -17,20 +31,28 @@ export const register = async (req, res) => {
             role: 'user'
         })
 
-        const accessToken = jwt.sign({id: createdUser.id}, config.ACCESS_TOKEN_SECRET, {
+        // 3. Create Access token & Refresh token
+        const accessToken = jwt.sign(user.dataValues, config.ACCESS_TOKEN_SECRET, {
             expiresIn: config.ACCESS_TOKEN_EXPIRE_TIME
-        })
-
-        const refreshToken = jwt.sign({id: user.id}, config.REFRESH_TOKEN_SECRET, {
+        });
+        
+        const refreshToken = jwt.sign({id: user.dataValues.id}, config.REFRESH_TOKEN_SECRET, {
             expiresIn: config.REFRESH_TOKEN_EXPIRE_TIME
         })
 
+        res.cookie('refresh_token', refreshToken, { httpOnly: true })
+
+        // 4. Store refresh token in the database
         await RefreshTokenModel.create({ token: refreshToken })
+
+        console.log('ACCCSS TOKEN:', accessToken)
+        console.log('REFRESH TOKEN:', refreshToken)
+
+        console.log('STORING this TOKEN:', refreshToken)
 
         return res.status(200).json({
             message: 'User added correctly!',
-            accessToken,
-            refreshToken
+            accessToken
         })
     } catch (error) {
         return res.json({
@@ -41,6 +63,16 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
+        console.log('ENTERED EMAIL', req.body.email);
+
+        // 0. Check input wasn't empty
+        if(req.body.email == "") return res.status(400).json({
+            message: 'Email field is empty'
+        })
+        if(req.body.password == "") return res.status(400).json({
+            message: 'Password field is empty'
+        })
+        
         // 1. Find typed email in database
         const user = await getUserByEmail(req.body.email)
 
@@ -66,6 +98,8 @@ export const login = async (req, res) => {
 
         res.cookie('refresh_token', refreshToken, { httpOnly: true })
 
+        console.log('STORING this TOKEN:', refreshToken)
+
         // 4. Store refresh token in the database
         await RefreshTokenModel.create({ token: refreshToken })
 
@@ -73,6 +107,7 @@ export const login = async (req, res) => {
             message: 'Successful login!',
             accessToken
         });
+        
 
     } catch (error) {
         return res.status(400).json({ message: error.message })
@@ -83,6 +118,8 @@ export const login = async (req, res) => {
 export const validateRefreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies['refresh_token'];
+
+        console.log('REFRESH THIS TOKEN ------->>>>>', refreshToken)
 
         if(refreshToken == null) return res.status(400).json({ message: 'Refresh token not provided'})
 
