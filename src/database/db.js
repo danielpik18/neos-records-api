@@ -7,7 +7,10 @@ const db = new Sequelize(
     {
         host: 'b3fcbuw4pv5wgd3wm0xg-mysql.services.clever-cloud.com',
         dialect: 'mysql',
-        port: '3306'
+        port: '3306',
+        dialectOptions: {
+            socketPath: "/var/run/mysqld/mysqld.sock"
+        }
     });
 
 export default db;
