@@ -33,9 +33,9 @@ app.use(cors({
 app.use(express.json());
 /* Routes */
 
-app.use('/api/news', newsRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes); // DB connection
+app.use('/news', newsRoutes);
+app.use('/users', userRoutes);
+app.use('/auth', authRoutes); // DB connection
 
 try {
   await db.authenticate();
