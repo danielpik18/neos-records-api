@@ -6,7 +6,8 @@ const db = new Sequelize(
     'ZqwOiVHCZId1IWVCn96W',
     {
         host: 'b3fcbuw4pv5wgd3wm0xg-mysql.services.clever-cloud.com',
-        dialect: 'mysql'
+        dialect: 'mysql',
+        port: '3306'
     });
 
 export default db;
