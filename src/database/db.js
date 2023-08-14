@@ -1,8 +1,12 @@
 import { Sequelize } from "sequelize";
 
-const db = new Sequelize('neos_records', 'root', '', {
-    host: 'localhost',
-    dialect: 'mysql'
-});
+const db = new Sequelize(
+    'b3fcbuw4pv5wgd3wm0xg',
+    'us0uyw9fuzb7py9o',
+    'ZqwOiVHCZId1IWVCn96W',
+    {
+        host: 'b3fcbuw4pv5wgd3wm0xg-mysql.services.clever-cloud.com',
+        dialect: 'mysql'
+    });
 
 export default db;

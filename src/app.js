@@ -52,7 +52,6 @@ try {
     console.log('DB connection error: ', error)
 }
 
-
 //db.sync({force: true});
 
 app.listen(8000, () => {
