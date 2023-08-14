@@ -5,16 +5,17 @@ import jwt from 'jsonwebtoken';
 import config from '../config.js'
 import RefreshTokenModel from "../models/RefreshTokenModel.js";
 
+import 'dotenv/config.js';
+
 export const register = async (req, res) => {
     try {
-        console.log('ENTERED DATA', req.body);
-
         // 0. Check input wasn't empty
         if(
             !req.body.name ||
             !req.body.lastname ||
             !req.body.email ||
-            !req.body.password
+            !req.body.password ||
+            !req.body.role
         ) return res.status(400).json({
             message: 'A required field was left empty.'
         })
@@ -28,15 +29,15 @@ export const register = async (req, res) => {
             lastname: req.body.lastname,
             email: req.body.email,
             password: hashedPassword,
-            role: 'user'
+            role: req.body.role
         })
 
         // 3. Create Access token & Refresh token
-        const accessToken = jwt.sign(user.dataValues, config.ACCESS_TOKEN_SECRET, {
+        const accessToken = jwt.sign(user.dataValues, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: config.ACCESS_TOKEN_EXPIRE_TIME
         });
         
-        const refreshToken = jwt.sign({id: user.dataValues.id}, config.REFRESH_TOKEN_SECRET, {
+        const refreshToken = jwt.sign({id: user.dataValues.id}, process.env.REFRESH_TOKEN_SECRET, {
             expiresIn: config.REFRESH_TOKEN_EXPIRE_TIME
         })
 
@@ -44,11 +45,6 @@ export const register = async (req, res) => {
 
         // 4. Store refresh token in the database
         await RefreshTokenModel.create({ token: refreshToken })
-
-        console.log('ACCCSS TOKEN:', accessToken)
-        console.log('REFRESH TOKEN:', refreshToken)
-
-        console.log('STORING this TOKEN:', refreshToken)
 
         return res.status(200).json({
             message: 'User added correctly!',
@@ -63,8 +59,6 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
     try {
-        console.log('ENTERED EMAIL', req.body.email);
-
         // 0. Check input wasn't empty
         if(req.body.email == "") return res.status(400).json({
             message: 'Email field is empty'
@@ -88,11 +82,11 @@ export const login = async (req, res) => {
         }
         
         // 3. Create Access token & Refresh token
-        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET, {
+        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
             expiresIn: config.ACCESS_TOKEN_EXPIRE_TIME
         });
         
-        const refreshToken = jwt.sign({id: user.id}, config.REFRESH_TOKEN_SECRET, {
+        const refreshToken = jwt.sign({id: user.id}, process.env.REFRESH_TOKEN_SECRET, {
             expiresIn: config.REFRESH_TOKEN_EXPIRE_TIME
         })
 
@@ -127,12 +121,12 @@ export const validateRefreshToken = async (req, res) => {
 
         if(!(tokenInDb)) return res.status(400).json({ message: 'Refresh token not found in DB'})
 
-        jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, async (error, decodedToken) => {
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (error, decodedToken) => {
             if(error) return res.status(403).json('Error validating refresh token')
 
             const user = await getUserById(decodedToken.id)
         
-            const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET, {
+            const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
                 expiresIn: config.ACCESS_TOKEN_EXPIRE_TIME
             });
     
