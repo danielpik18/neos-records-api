@@ -41,7 +41,7 @@ export const register = async (req, res) => {
             expiresIn: config.REFRESH_TOKEN_EXPIRE_TIME
         })
 
-        res.cookie('refresh_token', refreshToken, { httpOnly: true, sameSite: 'None' })
+        res.cookie('refresh_token', refreshToken, { httpOnly: true, sameSite: 'None', secure: true })
 
         // 4. Store refresh token in the database
         await RefreshTokenModel.create({ token: refreshToken })
@@ -90,7 +90,7 @@ export const login = async (req, res) => {
             expiresIn: config.REFRESH_TOKEN_EXPIRE_TIME
         })
 
-        res.cookie('refresh_token', refreshToken, { httpOnly: true, sameSite: 'None' })
+        res.cookie('refresh_token', refreshToken, { httpOnly: true, sameSite: 'None', secure: true })
 
         console.log('STORING this TOKEN:', refreshToken)
 
